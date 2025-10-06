@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from fastapi.security.http import HTTPAuthorizationCredentials
 
 from .utils import decode_token
+from src.db.redis import token_in_blocklist
 
 
 class TokenBearer(HTTPBearer):
@@ -22,7 +23,6 @@ class TokenBearer(HTTPBearer):
 
         token = creds.credentials
 
-        # I do not know why token has Bearer in it; By the use of ChatGPT I solved this error
         if token.startswith("Bearer "):
             token = token.split(" ")[1]
 
@@ -33,6 +33,15 @@ class TokenBearer(HTTPBearer):
         if not token_data or not self.token_valid(token):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail="Invalid or expired token"
+            )
+
+        if await token_in_blocklist(token_data["jti"]):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={
+                    "error": "This token is invalid or has been revoked",
+                    "solution": "Please get new token",
+                },
             )
 
         self.verify_token_data(token_data)
