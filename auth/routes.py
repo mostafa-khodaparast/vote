@@ -53,7 +53,11 @@ async def login_users(
 
         if password_valid:
             access_token = create_access_token(
-                user_data={"email": user.email, "user_id": str(user.id)}
+                user_data={
+                    "email": user.email,
+                    "user_id": str(user.id),
+                    "role": user.role,
+                }
             )
 
             refresh_token = create_access_token(

@@ -7,13 +7,21 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-#----------I added these-----------
+# ----------I added these-----------
 import sys
+from dotenv import load_dotenv
+import os
 from pathlib import Path
-sys.path.append(str(Path(__file__).resolve().parents[2]))
-#----------------------------------
 
-#----------I added these-----------
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+env_path = BASE_DIR / ".env"
+
+load_dotenv(dotenv_path=env_path)
+# ----------------------------------
+
+# ----------I added these-----------
 from src.books.models import Book
 from src.auth.models import User
 from sqlmodel import SQLModel
@@ -24,9 +32,9 @@ from src.config import Config
 # access to the values within the .ini file in use.
 config = context.config
 
-#----------I added these-----------
+# ----------I added these-----------
 database_url = Config.DATABASE_URL
-config.set_main_option('sqlalchemy.url', database_url)
+config.set_main_option("sqlalchemy.url", database_url)
 
 
 # Interpret the config file for Python logging.
