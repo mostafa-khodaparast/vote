@@ -9,11 +9,17 @@ from .service import Userservice
 from src.db.main import get_session
 from src.db.redis import add_jti_to_blocklist
 from .utils import create_access_token, decode_token, verify_password
-from .dependencies import RefreshTokenBearer, AccessTokenBearer, get_current_user
+from .dependencies import (
+    RefreshTokenBearer,
+    AccessTokenBearer,
+    get_current_user,
+    RoleChecker,
+)
 
 
 auth_router = APIRouter()
 user_service = Userservice()
+role_checker = RoleChecker(["admin", "user"])
 
 REFRESH_TOKEN_EXPIRY = 2
 
@@ -109,5 +115,7 @@ async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):
 
 
 @auth_router.get("/me")
-async def get_current_user(user=Depends(get_current_user)):
+async def get_current_user(
+    user=Depends(get_current_user), _: bool = Depends(role_checker)
+):
     return user
